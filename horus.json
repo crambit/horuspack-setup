@@ -1,0 +1,11 @@
+{
+  "name": "setup",
+  "version": "0.6",
+  "description": "A minimal Riemann configuration",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/crambit/horuspack-setup"
+  },
+  "author": "Eric Lafleur <eric@crambit.com>",
+  "license": "EPL"
+}

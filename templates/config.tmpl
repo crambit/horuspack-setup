@@ -1,0 +1,38 @@
+(ns core.setup.config
+  "A minimal Riemann configuration"
+  (:require [riemann.config :refer :all]
+            [riemann.logging :as logging]
+            [clj-http.client :as client]
+            [cheshire.core :as json]
+            [clojure.string :as cstr]))
+
+;; enable Riemann instrumentation to provide measures about the streaming system
+(instrumentation {:interval 60 :enabled? true})
+
+;; expire old events from the index every 30 seconds
+(periodically-expire 30 {:keep-keys [:host :service :tags]})
+
+;; get configuration values from Horus server
+(let [url (str "{{horus_addr}}" "config?context=" (or (System/getenv "RIEMANN_CONTEXT") "start"))
+      body (:body (client/get url))
+      data (json/parse-string body true)
+      map-fields (fn [{:keys [service] :as event}]
+                   (let [[source hostname metricname] (cstr/split service #"\." 3)]
+                    { :host (cstr/replace hostname #"_" ".")
+                      :service metricname
+                      :metric (:metric event)
+                      :tags source
+                      :time (:time event)
+                      :ttl 30}))]
+
+  ;; set up inbound servers
+  (graphite-server :host (:hostname data) :port (:graphitePort data) :protocol :tcp :parser-fn map-fields)
+  (graphite-server :host (:hostname data) :port (:graphitePort data) :protocol :udp :parser-fn map-fields)
+  (tcp-server :host (:hostname data) :port (:tcpPort data))
+  (udp-server :host (:hostname data) :port (:tcpPort data))
+  (ws-server :host (:hostname data)  :port (:wsPort data))
+  (repl-server :host (:hostname data) :port (:replPort data))
+
+  ;; log to both console and file
+  (logging/init :console true :file (:logfile data)))
+
