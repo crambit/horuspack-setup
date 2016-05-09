@@ -1,6 +1,6 @@
 {
   "name": "setup",
-  "version": "0.6",
+  "version": "0.7",
   "description": "A minimal Riemann configuration",
   "repository": {
     "type": "git",

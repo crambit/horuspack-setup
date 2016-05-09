@@ -13,7 +13,7 @@
 (periodically-expire 30 {:keep-keys [:host :service :tags]})
 
 ;; get configuration values from Horus server
-(let [url (str "{{horus_addr}}" "config?context=" (or (System/getenv "RIEMANN_CONTEXT") "start"))
+(let [url (str "{{&horus_addr}}" "config?context=" (or (System/getenv "RIEMANN_CONTEXT") "start"))
       body (:body (client/get url))
       data (json/parse-string body true)
       map-fields (fn [{:keys [service] :as event}]
