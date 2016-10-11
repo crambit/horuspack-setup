@@ -1,1 +1,4 @@
-horus_addr: "http://localhost:9000/horus/"
+tcp-port: 5555
+ws-port: 5556
+repl-port: 5557
+logfile: /var/log/riemann/riemann.log
